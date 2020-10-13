@@ -1,4 +1,6 @@
 baseApi: 'http://umsauat.niceloo.com'
+token: '83746A1D63764609B1B8AFAA1BFC25B2'
+time: '3s'
 apis:
 - url: '/api/es/page/list'
   apiName: '推广页列表'
