@@ -5,7 +5,7 @@ import (
 	"os/exec"
 	"testing"
 
-	logger "stress-test/pkg/log"
+	logger "github.com/niaoshuai/stress-test/pkg/log"
 )
 
 func TestHeyCmdExecute(t *testing.T) {

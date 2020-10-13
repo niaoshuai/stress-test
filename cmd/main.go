@@ -5,7 +5,7 @@ import (
 	"flag"
 	"log"
 	"os/exec"
-	logger "stress-test/pkg/log"
+	logger "github.com/niaoshuai/stress-test/pkg/log"
 )
 
 var (
