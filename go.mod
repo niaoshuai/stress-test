@@ -1,4 +1,4 @@
-module svn-hook
+module stress-test
 
 go 1.14
 
