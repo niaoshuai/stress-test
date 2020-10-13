@@ -84,7 +84,7 @@ func heyCmdExecute(api StressAPI, baseApi string) {
 	urlData := fmt.Sprintf("%s%s", baseApi, api.URL)
 	headerData := "Content-Type:application/x-www-form-urlencoded; charset=UTF-8"
 
-	heyCmd := exec.Command("hey", "-m", "POST", "-H", headerData, "-d", paramData, "-z", "10s", urlData)
+	heyCmd := exec.Command("hey", "-m", "POST", "-H", headerData, "-d", paramData, "-z", perApiTime, urlData)
 	var out1 bytes.Buffer
 	heyCmd.Stdout = &out1
 	err := heyCmd.Start()
