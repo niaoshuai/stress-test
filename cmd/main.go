@@ -3,27 +3,33 @@ package main
 import (
 	"bytes"
 	"flag"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"os/exec"
+	"time"
+
 	logger "github.com/niaoshuai/stress-test/pkg/log"
+	"gopkg.in/yaml.v2"
 )
 
 var (
 	yamlPath   string
 	perApiTime string
 	apiToken   string
+	logPath    string
 )
 
 type Stress struct {
-	baseApi string
-	apis    []StressApi
+	BaseAPI string      `yaml:"baseApi"`
+	APIs    []StressAPI `yaml:"apis"`
 }
 
-type StressApi struct {
-	url       string
-	apiName   string
-	paramsStr string
-	method    string
+type StressAPI struct {
+	URL       string `yaml:"url"`
+	APIName   string `yaml:"apiName"`
+	ParamsStr string `yaml:"paramsStr"`
+	Method    string `yaml:"method"`
 }
 
 func main() {
@@ -31,6 +37,7 @@ func main() {
 	flag.StringVar(&yamlPath, "YAML_PATH", "", "性能测试 Yaml 路径")
 	flag.StringVar(&perApiTime, "PER_API_TIME", "", "每个 API 接口")
 	flag.StringVar(&apiToken, "TOKEN", "", " API 接口的 TOKEN")
+	flag.StringVar(&logPath, "LOG_PATH", "stress-test.log", "log")
 	flag.Parse()
 
 	// check value
@@ -46,26 +53,49 @@ func main() {
 		log.Fatal("TOKEN not null")
 	}
 
+	// 初始化日志
+	logger.InitLog(logPath)
+
+	var stress Stress
+	yamlS, readErr := ioutil.ReadFile(yamlPath)
+	if readErr != nil {
+		log.Fatal("FILE NOT EXIST")
+	}
+	// yaml解析的时候c.data如果没有被初始化，会自动为你做初始化
+	err := yaml.Unmarshal(yamlS, &stress)
+	if err != nil {
+		log.Fatal("YAML 解析异常")
+	}
+
+	for _, api := range stress.APIs {
+
+		fmt.Println("\r\n##########begin##############\r\n")
+		fmt.Println(api.APIName + "\r\n")
+
+		heyCmdExecute(api, stress.BaseAPI)
+		time.Sleep(1 * time.Second)
+		fmt.Println("\r\n##########end##############\r\n")
+	}
+
 }
 
-func heyCmdExecute() string {
-	svnLookLogCmd := exec.Command("hey"
-		,"-m", "POST"
-		,"-H", "ontent-Type:application/x-www-form-urlencoded; charset=UTF-8"
-		,"-d","params=%7B%22pageIndex%22%3A0%2C%22pageSize%22%3A10%2C%22pageType%22%3A%22P%22%2C%22pageId%22%3A%22%22%2C%22pageName%22%3A%22%22%2C%22pageCreator%22%3A%22%22%2C%22pageEseeid%22%3A%22%22%2C%22pageChanneltype%22%3A%22%22%2C%22channelId%22%3A%22%22%2C%22pageWay%22%3A%22%22%2C%22projectId%22%3A%22%22%2C%22pagePosturl%22%3A%22%22%2C%22pageStatus%22%3A%22Y%22%2C%22pageCreateddate_start%22%3A%22%22%2C%22pageCreateddate_end%22%3A%22%22%2C%22menuCode%22%3A%22es%2Fpage%2Flist%22%7D&TOKEN=83746A1D63764609B1B8AFAA1BFC25B2"
-		,"-z",perApiTime
-		, "http://umsauat.niceloo.com/api/es/page/list"
-		)
+func heyCmdExecute(api StressAPI, baseApi string) {
+	paramData := fmt.Sprintf("params=%s&TOKEN=%s", api.ParamsStr, apiToken)
+	urlData := fmt.Sprintf("%s%s", baseApi, api.URL)
+	headerData := "Content-Type:application/x-www-form-urlencoded; charset=UTF-8"
+
+	heyCmd := exec.Command("hey", "-m", "POST", "-H", headerData, "-d", paramData, "-z", "10s", urlData)
 	var out1 bytes.Buffer
-	svnLookLogCmd.Stdout = &out1
-	err := svnLookLogCmd.Start()
+	heyCmd.Stdout = &out1
+	err := heyCmd.Start()
 	if err != nil {
 		logger.Fatal(err)
 	}
-	err = svnLookLogCmd.Wait()
+	err = heyCmd.Wait()
 	if err != nil {
 		logger.Fatal(err)
 	}
+
+	fmt.Println(out1.String())
 	logger.Info(out1.String())
-	return out1.String()
 }

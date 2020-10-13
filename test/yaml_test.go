@@ -4,6 +4,6 @@ import (
 	"testing"
 )
 
-func TestHeyCmdExecute(t *testing.T) {
+func TestYaml(t *testing.T) {
 
 }

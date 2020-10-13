@@ -1,0 +1,11 @@
+baseApi: 'http://umsauat.niceloo.com'
+apis:
+- url: '/api/es/page/list'
+  apiName: '推广页列表'
+  paramsStr: '{"pageIndex":0,"pageSize":10,"pageType":"P","pageId":"","pageName":"","pageCreator":"","pageEseeid":"","pageChanneltype":"","channelId":"","pageWay":"","projectId":"","pagePosturl":"","pageStatus":"Y","pageCreateddate_start":"","pageCreateddate_end":"","menuCode":"es/page/list"}'
+  method: 'POST'
+
+- url: '/api/es/account/list'
+  apiName: '推广账户列表'
+  paramsStr: '{"pageIndex":0,"pageSize":10,"accountName":"","companyName":"","accountStatus":"Y","accountCreateddate_start":"","accountCreateddate_end":"","menuCode":"es/account/list"}'
+  method: 'POST'
